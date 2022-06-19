@@ -145,3 +145,6 @@ DATABASES = {
 }
 
 AUTH_USER_MODEL = "authentication.User"
+
+ENCRYPTION_KEY = ""
+DOMAIN = ""

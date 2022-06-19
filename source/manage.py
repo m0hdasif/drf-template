@@ -3,10 +3,13 @@
 import os
 import sys
 
+from app.test_coverage import UnitTestCoverage
+
 
 def main():
     """Run administrative tasks."""
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "app.settings.core")
+
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:
@@ -15,7 +18,22 @@ def main():
             "available on your PYTHONPATH environment variable? Did you "
             "forget to activate a virtual environment?"
         ) from exc
+
+    try:
+        command = sys.argv[1]
+    except IndexError:
+        command = ""
+
+    running_tests = command == "test"
+
+    if running_tests:
+        cov = UnitTestCoverage()
+        cov.run()
+
     execute_from_command_line(sys.argv)
+
+    if running_tests:
+        cov.stop()
 
 
 if __name__ == "__main__":

@@ -1,0 +1,18 @@
+[tool.black]
+line-length = 88
+include = '\.pyi?$'
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+line_length = 88
+default_section = "FIRSTPARTY"
+known_first_party = []
+known_third_party = ["django"]
+skip_glob = ["*/migrations/*.py"]
+
+[tool.vulture]
+min_confidence = 65
+exclude = ["migrations"]
+sort_by_size = true
+paths = ["source"]

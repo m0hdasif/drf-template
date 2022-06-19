@@ -1,0 +1,23 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+django = "*"
+django-shortcuts = "*"
+djangorestframework = "*"
+djangorestframework-simplejwt = "*"
+django-storages = "*"
+python-dotenv = "*"
+pre-commit = "*"
+psycopg2 = "*"
+coverage = "*"
+factory-boy = "*"
+django-rest-passwordreset = "*"
+pillow = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.9"

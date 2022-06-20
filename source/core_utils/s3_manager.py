@@ -19,12 +19,21 @@ class S3Manager:
         bucket_name :- this is the s3 bucket name.
     """
 
-    _AWS_KEY = os.environ.get("AWS_ACCESS_KEY_ID", None)
-    _AWS_SECRET = os.environ.get("AWS_SECRET_ACCESS_KEY", None)
-    _AWS_REGION = os.environ.get("AWS_REGION_NAME", None) or settings.AWS_S3_REGION_NAME
+    _AWS_KEY = settings.AWS_S3_ACCESS_KEY_ID
+    _AWS_SECRET = settings.AWS_S3_SECRET_ACCESS_KEY
+    _AWS_REGION = settings.AWS_S3_REGION_NAME
 
-    def __init__(self, bucket_name):
+    def __init__(
+        self,
+        bucket_name,
+        aws_key=settings.AWS_S3_ACCESS_KEY_ID,
+        aws_secret=settings.AWS_S3_SECRET_ACCESS_KEY,
+        aws_region=settings.AWS_S3_REGION_NAME,
+    ):
         """Load session and bucket name for the S3 bucket."""
+        self._AWS_KEY = aws_key
+        self._AWS_SECRET = aws_secret
+        self._AWS_REGION = aws_region
         self.bucket_name = bucket_name
         self._session = Session(
             aws_access_key_id=self._AWS_KEY,

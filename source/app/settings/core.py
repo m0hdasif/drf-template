@@ -10,7 +10,14 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 
+
+import os
 from pathlib import Path
+
+from django.core.management import utils
+from django.core.management.commands import runserver
+
+from . import env
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -18,14 +25,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-f5mir5-&n@_u04pk-c#c7k!a$+83a^9j4xzvyl%thqb5rx-nn4"
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -120,6 +119,7 @@ STATIC_URL = "static/"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Custom configuration
+AUTH_USER_MODEL = "authentication.User"
 
 # Django Rest Framework configurations
 REST_FRAMEWORK = {
@@ -129,10 +129,65 @@ REST_FRAMEWORK = {
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",  # Non generic views and viewsets do not have pagination by default
     "PAGE_SIZE": 50,
     "COERCE_DECIMAL_TO_STRING": False,
+    "DEFAULT_RENDERER_CLASSES": [
+        "rest_framework.renderers.JSONRenderer",
+    ],
 }
 
 SIMPLE_JWT = {"ROTATE_REFRESH_TOKENS": True}
 
+ENV_NAME = os.getenv("ENV", "dev")
+
+IS_DEVELOPMENT = ENV_NAME in ["dev", "development"]
+
+# Default values
+_DEFAULT_PORT = 8002
+_DEFAULT_DB_PORT = 5432
+_DEFAULT_ALLOWED_HOSTS = ""
+_DEFAULT_S3_ENV_FILE_LOCATION = f"env_files/{ENV_NAME}.env"
+_DEFAULT_S3_REGION_NAME = "ap-southeast-1"
+_DEFAULT_DEBUG = IS_DEVELOPMENT
+_DEFAULT_FETCH_ENV_FROM_S3 = False
+
+if IS_DEVELOPMENT:
+    ROOT_URLCONF = "app.urls.dev"
+    _DEFAULT_ALLOWED_HOSTS = "*"
+elif ENV_NAME in ["prod", "production"]:
+    ROOT_URLCONF = "app.urls.prod"
+    _DEFAULT_ALLOWED_HOSTS = "localhost,127.0.0.1"
+
+
+# Load ENV variables
+env.load_envfile(ENV_NAME)
+# Set configuration for S3 environment variable loading
+AWS_S3_ACCESS_KEY_ID = env.lookup_env(["AWS_S3_ACCESS_KEY_ID", "AWS_ACCESS_KEY_ID"])
+AWS_S3_SECRET_ACCESS_KEY = env.lookup_env(
+    ["AWS_S3_SECRET_ACCESS_KEY", "AWS_SECRET_ACCESS_KEY"]
+)
+AWS_SESSION_TOKEN = env.lookup_env(["AWS_SESSION_TOKEN", "AWS_SECURITY_TOKEN"])
+AWS_STORAGE_BUCKET_NAME = env.lookup_env(["AWS_STORAGE_BUCKET_NAME"])
+AWS_S3_REGION_NAME = env.lookup_env(
+    ["AWS_S3_REGION_NAME", "AWS_REGION_NAME"], _DEFAULT_S3_REGION_NAME
+)
+S3_ENV_FILE_LOCATION = env.get_env_value(
+    "S3_ENV_FILE_LOCATION", _DEFAULT_S3_ENV_FILE_LOCATION
+)
+# load env variables from S3
+if env.get_bool_from_env("FETCH_ENV_VARS_FROM_S3", _DEFAULT_FETCH_ENV_FROM_S3):
+    env.load_env_from_s3()
+
+
+DEBUG = env.get_env_value("DEBUG", _DEFAULT_DEBUG)
+
+SECRET_KEY = env.get_env_value("SECRET_KEY")
+if not SECRET_KEY and DEBUG and IS_DEVELOPMENT:
+    SECRET_KEY = utils.get_random_secret_key()
+
+
+ALLOWED_HOSTS = env.get_list_from_env("ALLOWED_HOSTS", _DEFAULT_ALLOWED_HOSTS)
+
+# Set application port
+runserver.Command.default_port = env.get_env_value("PORT", _DEFAULT_PORT)
 
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
@@ -143,8 +198,6 @@ DATABASES = {
         "NAME": BASE_DIR / "db.sqlite3",
     }
 }
-
-AUTH_USER_MODEL = "authentication.User"
 
 ENCRYPTION_KEY = ""
 DOMAIN = ""

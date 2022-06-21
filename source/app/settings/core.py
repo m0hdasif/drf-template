@@ -208,3 +208,10 @@ DATABASES = {
 
 ENCRYPTION_KEY = ""
 DOMAIN = ""
+
+# Celery configuration
+BROKER_URL = env.get_env_value("CELERY_BROKER_URL")
+CELERY_RESULT_BACKEND = env.get_env_value("CELERY_BROKER_URL")
+CELERY_ACCEPT_CONTENT = ["application/json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"

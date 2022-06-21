@@ -19,6 +19,8 @@ pillow = "*"
 cryptography = "*"
 openpyxl = "*"
 boto3 = "*"
+celery = "*"
+redis = "*"
 
 [dev-packages]
 black = "*"

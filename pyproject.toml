@@ -8,7 +8,7 @@ multi_line_output = 3
 line_length = 88
 default_section = "FIRSTPARTY"
 known_first_party = ["app", "authentication","core_utils"]
-known_third_party = ["boto3", "botocore", "coverage", "cryptography", "django", "django_rest_passwordreset", "dotenv", "openpyxl", "requests", "rest_framework", "rest_framework_simplejwt"]
+known_third_party = ["boto3", "botocore", "celery", "coverage", "cryptography", "django", "django_rest_passwordreset", "dotenv", "openpyxl", "requests", "rest_framework", "rest_framework_simplejwt"]
 skip_glob = ["*/migrations/*.py"]
 
 [tool.vulture]

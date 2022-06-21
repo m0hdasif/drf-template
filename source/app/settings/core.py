@@ -194,9 +194,16 @@ runserver.Command.default_port = env.get_env_value("PORT", _DEFAULT_PORT)
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
+        "ENGINE": "django.db.backends.postgresql",
+        "USER": env.get_env_value("DATABASE_USER"),
+        "PASSWORD": env.get_env_value("DATABASE_PASSWORD"),
+        "NAME": env.get_env_value("DATABASE_NAME"),
+        "HOST": env.get_env_value("DATABASE_HOST"),
+        "PORT": int(env.get_env_value("DATABASE_PORT", _DEFAULT_DB_PORT)),
+        "TEST": {
+            "NAME": "test_db",
+        },
+    },
 }
 
 ENCRYPTION_KEY = ""
